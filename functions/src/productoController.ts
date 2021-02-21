@@ -24,6 +24,7 @@ const getProductos = async (req: Request, res: Response) => {
             _id: doc.id,
             ...doc.data()
         }));
+        
         return res.status(200).json(productos);
     } catch (error) { return res.status(500).json(error.message) }
 }
@@ -36,9 +37,7 @@ const getProducto = async (req: Request, res: Response) => {
 
         if (!producto.exists) throw new Error('El producto no existe');
 
-        res.json({
-            data: producto.data()
-        });
+        res.json(producto.data());
 
     } catch (error) { res.status(500).send(error) }
 }
@@ -55,12 +54,18 @@ const addProducto = async (req: Request, res: Response) => {
             precio
         }
 
-        entry.set(PRODUCTO);
+        await entry.set(PRODUCTO).catch(error => {
+            return res.status(400).json({
+                status: 'error',
+                message: error.message
+            });
+        });
 
         res.status(200).send({
             status: 'success',
             message: 'Producto agregado satisfactoriamente'
         });
+
     } catch (error) { res.status(500).json(error.message) }
 }
 
@@ -90,6 +95,7 @@ const updateProducto = async (req: Request, res: Response) => {
             status: 'success',
             message: 'Producto actualizado satisfactoriamente'
         });
+
     } catch (error) { return res.status(500).json(error.message) }
 }
 
@@ -110,6 +116,7 @@ const deleteProducto = async (req: Request, res: Response) => {
             status: 'success',
             message: 'Producto eliminado satisfactoriamente'
         });
+
     } catch (error) { return res.status(500).json(error.message) }
 }
 
